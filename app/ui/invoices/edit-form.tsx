@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import { State, updateInvoice } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
-import { bindTrailingArgs } from '@/app/lib/utils';
 
 export default function EditInvoiceForm({
   invoice,
