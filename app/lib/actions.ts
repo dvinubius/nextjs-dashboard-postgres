@@ -4,6 +4,7 @@ import { sql } from "@vercel/postgres";
 import { CreateInvoice, InvoiceSchema, UpdateInvoice } from "./definitions";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { signIn } from "@/auth";
 
 // This is temporary until @types/react-dom is updated
 export type State = {
@@ -88,4 +89,18 @@ export async function deleteInvoice(id: string) {
   }
   
   revalidatePath('/dashboard/invoices');
+}
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn('credentials', Object.fromEntries(formData));
+  } catch (error) {
+    if ((error as Error).message.includes('CredentialsSignin')) {
+      return 'CredentialSignin';
+    }
+    throw error;
+  }
 }
