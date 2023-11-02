@@ -5,6 +5,9 @@ import { CreateInvoice, InvoiceSchema, UpdateInvoice } from "./definitions";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
+import { z } from "zod";
+import bcrypt from 'bcrypt';
+import { getUser } from "./data";
 
 // This is temporary until @types/react-dom is updated
 export type State = {
@@ -100,6 +103,45 @@ export async function authenticate(
   } catch (error) {
     if ((error as Error).message.includes('CredentialsSignin')) {
       return 'CredentialSignin';
+    }
+    throw error;
+  }
+}
+
+export async function signup(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    const credentials = Object.fromEntries(formData);
+
+    const parsedCredentials = z
+      .object({ email: z.string().email(), password: z.string().min(6), name: z.string().min(3) })
+      .safeParse(credentials);
+    
+    if (parsedCredentials.success) {
+      const { email, password, name } = parsedCredentials.data;
+
+      const user = await getUser(email);
+      if (user) {
+        throw new Error('CredentialsSignup: User already exists');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await sql`
+        INSERT INTO users (email, password, name)
+        VALUES (${email}, ${hashedPassword}, ${name})
+      `;
+    } else {
+      throw new Error('CredentialsSignup: Invalid Credentials');
+    }
+
+    // authenticate user
+    await signIn('credentials', credentials);
+    redirect('/dashboard');
+  } catch (error) {
+    if ((error as Error).message.includes('CredentialsSignup')) {
+      return 'CredentialsSignup';
     }
     throw error;
   }

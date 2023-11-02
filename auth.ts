@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthConfig } from 'next-auth';
 import { authConfig } from './auth.config';
 import Credentials from 'next-auth/providers/credentials'; 
 import { z } from 'zod';
@@ -16,7 +16,7 @@ async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
-export const { auth, signIn, signOut } = NextAuth({
+export const nextAuthConfig: NextAuthConfig = {
   ...authConfig,
   providers: [
     Credentials({
@@ -35,9 +35,12 @@ export const { auth, signIn, signOut } = NextAuth({
           if (passwordsMatch) return user;
         }
   
-        console.log('Invalid Credentials');
         return null;
       },
     })
   ],
-});
+}
+
+export const handler = NextAuth(nextAuthConfig);
+
+export const { auth, signIn, signOut } = handler;
