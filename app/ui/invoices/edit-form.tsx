@@ -20,10 +20,9 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
-  const updateInvoiceWithId = bindTrailingArgs(updateInvoice, invoice.id);
-
   const initialState = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(updateInvoiceWithId, initialState) as [state: State, dispatch: (payload: FormData) => void];
+  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
+  const [state, dispatch] = useFormState(updateInvoiceWithId, initialState);
 
   return (
     <form action={dispatch}>
@@ -165,7 +164,7 @@ export default function EditInvoiceForm({
             <p>{state.message}</p>
           </div>
         ) : null}
-        
+
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/invoices"

@@ -67,10 +67,3 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
-
-// Bind arguments starting after however many are passed in.
-export function bindTrailingArgs(fn: Function, ...bound_args: any[]) {
-  return function(...args: any[]) {
-      return fn(...args, ...bound_args);
-  };
-}
